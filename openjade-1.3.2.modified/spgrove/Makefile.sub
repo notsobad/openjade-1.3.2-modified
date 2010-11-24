@@ -1,0 +1,12 @@
+LTVERSION=0:1:0
+LIB=ospgrove
+INCLUDE=-I$(srcdir)/../grove
+DEPLIBS=-lm -L$(TOP)/grove -L$(TOP)/grove/.libs \
+	-L$(TOP)/lib -L$(TOP)/lib/.libs \
+	$(LIB_THREADS)
+OBJS=GroveApp.o GroveBuilder.o SdNode.o
+GENSRCS=grove_inst.cxx
+
+GroveBuilder.o: grove_inst.cxx
+GroveBuilder.lo: grove_inst.cxx
+

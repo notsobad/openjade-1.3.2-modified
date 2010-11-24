@@ -1,0 +1,240 @@
+This collects stuff from the DSSSL standard which is 
+not implemented (yet) in OpenJade. A '+' at the end of 
+a line indicates that there is a patch implementing it.
+A '*' indicates it is already in CVS.
+
+
+missing DSSSL architectural element forms
+=========================================
+
+7.1.1	features
+7.1.2	sgml-grove-plan
+7.1.3	char-repertoire		* 
+7.1.5	other-chars             +
+7.1.6	baseset-encoding        + (the patch is only semi-functional)
+7.1.7	literal-described-char  + (the patch is only semi-functional)
+7.1.9	add-separator-chars	*
+7.1.10	add-name-chars		*
+7.1.11	combine-char            + (the patch is only semi-functional)
+
+
+missing expression language primitives
+======================================
+
+8.5.8.1		declare-char-property *
+		add-char-properties   *
+8.5.8.2		language?	 *
+		current-language *
+		with-language	 *
+8.5.8.2.1	define-language	 *
+8.5.8.4		char<?		 *
+		char>?		 *
+		char<=?		 * 
+		char>=?		 *
+8.5.8.5		char-ci<?	 *
+		char-ci>?	 *
+		char-ci<=?	 *
+		char-ci>=?	 *
+8.5.8.6		char-upcase	 *
+		char-downcase	 *
+8.5.8.7		char-property	 * 
+8.5.9.5		string-ci=?	 *
+		string-equiv?	 *
+8.5.9.6		string<?	 *
+		string>?	 *
+		string<=?	 *
+		string>=?	 *
+		string-ci<?	 *
+		string-ci>?	 *
+		string-ci<=?	 *
+		string-ci>=?	 *
+
+
+missing property set modules
+============================
+
+basesds1
+sdclabs
+sdclsds
+prlgabs1                  * 
+prlgsds
+instsds1
+dtgabs
+rankabs
+srabs
+srsds
+linkabs
+linksds
+subdcsds
+fpiabs
+
+
+missing SDQL primitives
+=======================
+
+10.1.1	current-root         *
+10.2.1	value-proploc
+	list-proploc
+	node-list-proploc
+	listloc
+	nameloc
+	groveloc
+	treeloc
+	pathloc
+	relloc-any
+	relloc-esib
+	relloc-ysib
+	relloc-des
+	datatok
+	make-grove
+	literal-match
+	hylex-match
+	compare
+	ordered-may-overlap?
+	ordered-no-overlap?
+	span
+10.2.2	node-list-reduce                *
+	node-list-contains?		*
+	node-list-remove-duplicates	*
+	node-list-union			*
+	node-list-intersection		*
+	node-list-difference		*
+	node-list-symmetric-difference	*
+	node-list-map			*
+	node-list-union-map		*
+	node-list-some?			*
+	node-list-every?		*
+	node-list-filter		*
+	node-list->list			*
+	node-list-tail			*
+	node-list-head			*
+	node-list-sublist		*
+	node-list-count			*
+	node-list-last			*
+	there-exist?                    *
+	for-all?                        *
+	select-each                     *
+	union-for-each                  *
+10.2.3	node-list-property		*
+	origin				*
+	origin-to-subnode-rel		*
+	tree-root			*
+	grove-root			*
+	source				*
+	subtree				*
+	subgrove			*
+	ancestors			*
+	grove-root-path			*
+	rsiblings			*
+	ipreced				*
+	ifollow				*
+	grove-before?			*
+	sort-in-tree-order		*
+	tree-before?			*
+	tree-before			*
+	property-lookup			*
+	select-by-property		*
+	select-by-null-property		*
+	select-by-missing-property	*
+10.2.5	attribute			*
+	referent			*
+	q-element			*
+	q-class				*
+	q-sdata				*
+10.3.1 	word-parse
+	select-tokens
+10.3.2	regexp?
+10.3.3	regexp-node
+	regexp-seq
+	regexp-or
+	regexp-and
+	regexp-rep
+	regexp-plus
+	regexp-opt
+	regexp-range
+	string->regexp
+10.3.4	regexp-search
+	regexp-search-disjoint
+
+
+Transformation language
+=======================
+
+
+Style language
+==============
+
+12.4.1   query
+12.4.6	 char-script-case
+	 declare-char-characteristic+property *
+12.4.7	 sync
+	 side-sync
+12.5.1	 generated-object?
+12.5.1.1 general-indirect-sosofo
+	 asis-indirect-sosofo
+	 number-indirect-sosofo
+12.5.1.2 page-number
+	 category-page-number
+	 page-number-in-node
+	 total-node-page-numbers
+	 column-number
+	 footnote-number
+	 line-number
+12.5.1.3 declare-reference-value-type
+	 first-area-reference-value	 
+	 last-area-reference-value	 
+	 last-preceding-area-reference-value	 
+	 all-area-reference-value	 
+12.5.3	 decoration-area
+	 decorated-area-width
+	 decorated-area-height
+12.5.7	 font-property
+
+
+Missing color spaces
+====================
+
+ISO/IEC 10179:1996//Color-Space Family::Device Gray     *
+ISO/IEC 10179:1996//Color-Space Family::Device CMYK     *
+ISO/IEC 10179:1996//Color-Space Family::Device KX       *
+ISO/IEC 10179:1996//Color-Space Family::CIE LAB         *
+ISO/IEC 10179:1996//Color-Space Family::CIE LUV         *
+ISO/IEC 10179:1996//Color-Space Family::CIE Based ABC   *
+ISO/IEC 10179:1996//Color-Space Family::CIE Based A     *
+
+
+Missing flow object classes
+===========================
+
+page-sequence       (and related expression language primitives and types) 
+column-set-sequence (and related expression language primitives and types) 
+anchor
+embedded-text
+included-container-area
+side-by-side
+side-by-side-item
+glyph-annotation
+aligned-column
+multi-line-inline-note
+emphasizing-mark
+
+
+Ignored inherited characteristics
+=================================
+
+force!c                         *
+inline-space-space              *
+line-miter-limit
+alignment-point-offset
+hyphenation-char
+asis-truncate-char
+asis-wrap-char
+first-line-align
+hyphenation-exceptions
+box-corner-rounded
+table-corner-rounded
+line-dash
+allowed-ligatures
+line-number
+line-spacing-priority
+char-map

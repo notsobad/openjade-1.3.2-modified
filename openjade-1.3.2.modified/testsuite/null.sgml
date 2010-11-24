@@ -1,0 +1,7 @@
+<!doctype nothing [
+<!-- Copyright (C) 1999 Avi Kivity -->
+<!element nothing o o (#pcdata)>
+
+]>
+
+<nothing></nothing>

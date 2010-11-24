@@ -1,0 +1,4 @@
+LTVERSION=0:1:0
+LIB=ogrove
+DEPLIBS=-lm
+OBJS=Node.o LocNode.o

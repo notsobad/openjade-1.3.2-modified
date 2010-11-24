@@ -1,0 +1,1 @@
+LT_LIBS=../style/libostyle.la ../spgrove/libospgrove.la ../grove/libogrove.la /opt/iscanv/report-tools/lib/libosp.la

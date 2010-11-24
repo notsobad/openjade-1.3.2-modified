@@ -1,0 +1,80 @@
+#
+#  Makefile.sub.in - Common rules and definitions
+#
+#  $Id: Makefile.comm.in,v 1.5.10.5 2002/12/01 11:56:47 icastle Exp $
+#
+#  Copyright (C) 1998 Cees de Groot <cg@sgmltools.org>
+#
+
+top_builddir=@TOP@
+TOP=@TOP@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+srcdir=@srcdir@
+bindir=@bindir@
+libdir=@libdir@
+datadir=@datadir@
+mandir=@mandir@
+spincludedir=@SPINCLUDEDIR@
+splibdir=@SPLIBDIR@
+
+CXX=@CXX@
+CC=@CC@
+PERL=@PERL@
+LIBTOOL=@LIBTOOL@
+INSTALL=@INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+
+LIBS=@LIBS@
+DEFS=@DEFS@ -DDEFAULT_SCHEME_BUILTINS=\"${datadir}/builtins.dsl\"
+INCS=-I$(srcdir) -I$(srcdir)/../include -I$(spincludedir) -I$(spincludedir)/.. $(INCLUDE)
+CXXFLAGS=@CXXFLAGS@ $(INCS) $(DEBUG) $(DEFS)
+CFLAGS=@CFLAGS@ $(DEBUG) $(DEFS)
+LDFLAGS=@LDFLAGS@
+MSGGENFLAGS= -l jstyleModule
+CXXDEPGENFLAGS=-MM
+
+.SUFFIXES: .cxx .c .o .m4 .msg .lo
+
+.cxx.o:
+	$(CXX) $(CXXFLAGS) -c $<
+
+.cxx.lo:
+	@$(LIBTOOL) --mode=compile $(CXX) $(CXXFLAGS) -c $<
+
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
+.c.lo:
+	@$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) -c $<
+
+.m4.cxx:
+	rm -f $@
+	$(PERL) $(srcdir)/../instmac.pl $< >$@
+	chmod -w $@
+
+%.h %.cxx %.rc: %.msg
+	$(PERL) -w $(srcdir)/../msggen.pl $(MSGGENFLAGS) $<
+
+.msg.h:
+	$(PERL) -w $(srcdir)/../msggen.pl $(MSGGENFLAGS) $<
+
+depend_src: depend.temp
+	mv depend.temp Makefile.dep
+
+depend.temp: FORCE
+	$(CXX) -MM $(CXXFLAGS) $(CXXDEPGENFLAGS) $(OBJS:.o=.cxx) \
+	  | sed -e 's; \([^/ ][^/ ]*\)/; $$(srcdir)/\1/;g' >depend.temp1
+	cat depend.temp1 > depend.temp
+	cat depend.temp1 | sed -e 's/\.o:/.lo:/g' >> depend.temp
+	rm depend.temp1
+
+clean: FORCE
+	-rm -f $(CLEANFILES)
+
+FORCE:
+
+%: RCS/%,v
+	test -w $@ || co -u $@

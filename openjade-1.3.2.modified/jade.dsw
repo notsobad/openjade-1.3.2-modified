@@ -1,0 +1,252 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "all"=.\all\all.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name groveoa
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name jade
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name nsgmls
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sgmlnorm
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name spam
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name spent
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sx
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "grove"=.\grove\grove.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "groveoa"=.\groveoa\groveoa.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name grove
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name spgrove
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "jade"=.\jade\jade.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    c:\home\work\sp\jade.pj
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name grove
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name spgrove
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name style
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "jadedist"=.\jadedist\jadedist.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name all
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "lib"=.\lib\lib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "nsgmls"=.\nsgmls\nsgmls.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sgmlnorm"=.\sgmlnorm\sgmlnorm.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "spam"=.\spam\spam.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "spent"=.\spent\spent.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "spgrove"=.\spgrove\spgrove.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name grove
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "style"=.\style\style.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name grove
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name spgrove
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sx"=.\sx\sx.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name lib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

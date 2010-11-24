@@ -1,0 +1,5 @@
+STRINGTABLE
+BEGIN
+  2000, "%1 version %2"
+  2001, "no DSSSL specification: use -d to specify"
+END

@@ -1,0 +1,1149 @@
+<!doctype article public "-//Davenport//DTD DocBook V3.0//EN">
+<article>
+  <artheader>
+    <title>Jade internals</title>
+    <author>
+      <firstname>Matthias</firstname>
+      <surname>Clasen</surname>
+      <affiliation>
+	<address format="linespecific">
+	  <email>clasen@mathematik.uni-freiburg.de</email>
+	</address>
+      </affiliation>
+    </author>
+    <date>5.6.99</date>
+  </artheader>
+  <abstract>
+    <para>This document describes the Jade DSSSL engine
+      from the programmers point of view. It was written to
+      help people who want to extend Jade.</para>
+  </abstract>
+  <sect1>
+    <title>Package organization</title>
+    <sect2>
+      <title>Directory contents</title>
+      <para>The follwing directories contain files needed during the
+      build:</para> 
+      <variablelist>
+	<varlistentry>
+	  <term><filename>all/</filename></term>
+	  <listitem><para>Visual C++ build process</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>config/</filename></term>
+	  <listitem><para>autoconf build process</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>jadedist/</filename></term>
+	  <listitem><para>creating a distribution</para></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>The following directories contain documentation:</para>
+      <variablelist>
+	<varlistentry>
+	  <term><filename>doc/</filename></term>
+	  <listitem><para>SP documentation</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>jadedoc/</filename></term>
+	  <listitem><para>Jade documentation</para></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>The following directories contain
+      <acronym>SGML</acronym>/<acronym>DSSSL</acronym> text files:</para>
+      <variablelist>
+	<varlistentry>
+	  <term><filename>dsssl/</filename></term>
+	  <listitem><para>DTDs for style sheets and FOT output; jadetex;
+	      examples</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>pubtext/</filename></term>
+	  <listitem><para>various DTDs and catalogs</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>unicode/</filename></term>
+	  <listitem><para><acronym>SGML</acronym> declaration and catalog for
+	  dealing with Unicode</para></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>The following directories contain the sources of the various
+      libraries:</para> 
+      <variablelist>
+	<varlistentry>
+	  <term><filename>include/</filename></term>
+	  <term><filename>lib/</filename></term>
+	  <listitem><para>the SP library</para></listitem> 
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>style/</filename></term>
+	  <listitem><para>the <acronym>DSSSL</acronym> style
+	      engine</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>grove/</filename></term>
+	  <listitem><para>an abstract interface to groves</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>spgrove/</filename></term>
+	  <listitem><para>an implementation of the grove
+	      interface</para></listitem> 
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>groveoa/</filename></term>
+	  <listitem><para>an <acronym>OLE</acronym>-enabled version of the
+	      grove builder, Windows-only</para></listitem>  
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>generic</filename></term>
+	  <listitem><para>simple <acronym>API</acronym> for applications
+	  derived from SP</para></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Applications:</para>
+      <variablelist>
+	<varlistentry>
+	  <term><filename>nsgmls/</filename></term>
+	  <listitem><para>an <acronym>SGML</acronym> parser</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>sgmlnorm/</filename></term>
+	  <listitem><para>an <acronym>SGML</acronym> normalizer</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>spam/</filename></term>
+	  <listitem><para>a markup stream editor</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>spent/</filename></term>
+	  <listitem><para>a frontend to the SP entity manager</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>sx/</filename></term>
+	  <listitem><para>a simple <acronym>SGML</acronym> to
+	      <acronym>XML</acronym> converter</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><filename>jade/</filename></term>
+	  <listitem><para>the source of the Jade application and its various
+	      backends</para></listitem>
+	</varlistentry>
+      </variablelist>
+    </sect2>
+    <sect2>
+      <title>The build system</title>
+      <para>TODO: What needs to be said here ? msggen.pl; What makefiles
+      are used and included where; list of defines in config.h;
+      building by hand vs. configure</para>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>Coding conventions</title>
+    <sect2>
+      <title>Formatting</title>
+      <para>The following list gives some hints on the coding conventions
+	used throughout the source.</para>
+      <itemizedlist>
+	<listitem>
+	  <para>Whitespace.</para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>Statement keywords have one space after them, and no space
+		between the parentheses and the enclosed expression:</para>
+	      <programlisting>
+if (foo)  /* good */
+if( foo ) /* bad */
+	      </programlisting>
+	    </listitem>
+	    <listitem>
+	      <para>In general there is never a space after an open
+		parenthesis or before a close parenthesis:</para>
+	      <programlisting>   
+foo(arg)    /* good */
+foo( arg ) /* bad */
+	      </programlisting>
+	    </listitem> 
+	    <listitem>
+	      <para>The * or & in pointer or reference declarations stick to
+		the identifier, not to the type:</para>
+	      <programlisting>
+void foo(int *p, int &amp;r) /* good */
+void foo(int* p, int& r) /* bad */
+	      </programlisting>	    
+	    </listitem>
+	    <listitem>
+	      <para>Put whitespace on either side of operators:</para>
+	      <programlisting>   
+x = y + z; /* good */
+x=y+z;     /* bad */
+	      </programlisting>
+	    </listitem> 
+	    <listitem>
+	      <para>Indent by 2 characters.</para>
+	    </listitem>
+	    <listitem>
+	      <para>Tabs are set every 8 characters.</para>
+	    </listitem>
+	  </itemizedlist>
+	</listitem>
+	<listitem>
+	  <para>Line breaks.</para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>Expressions broken over more than one line are aligned
+		LISP style:</para> 
+	      <programlisting>   
+if ((a
+      && b)
+       || (c
+           && d)) 
+	      </programlisting>
+	    </listitem> 
+	    <listitem>
+	      <para>else is on a separate line from the preceding brace:</para>
+	      <programlisting>
+if (foo) {
+}
+else if (bar) {
+}
+else {
+}
+	      </programlisting>
+	    </listitem>
+	    <listitem>
+	      <para>Long function headers should not be broken before the
+		parenthesis that starts the argument list.</para>
+	    </listitem>
+	  </itemizedlist>	
+	</listitem>	
+	<listitem>
+	  <para>Identifiers.</para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>Use camelCase. Class names and type names start
+		with an upper-case letter. Function names start with a
+		lower-case letter.</para>
+	    </listitem>
+	    <listitem>
+	      <para>Names of private date members end with an
+		underscore.</para> 
+	    </listitem>
+	  </itemizedlist>
+	</listitem>
+	<listitem>
+	  <para>Declarations.</para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>Use public: before private: in class declarations.</para>
+	    </listitem>
+	    <listitem>
+	      <para>Use const wherever applicable.  Declare member functions
+		const if they don't alter the object.  Declare reference
+		arguments const if the function doesn't change them
+		etc.</para> 
+	    </listitem>
+	    <listitem>
+	      <para>Don't declare inline member functions in the body; declare
+		them separately in the header file.</para>
+	    </listitem>
+	    <listitem>
+	      <para>Never have public data members in a class.</para>
+	      <para>However is OK to have a struct which is just a bundle of
+		data.  In this case use struct not class.  All members are
+		public and names don't end with an underscore.  There are no
+		member functions (the only exception is that there may be a
+	      constructor).</para>	     
+	    </listitem>
+	  </itemizedlist>
+	</listitem>
+	<listitem>
+	  <para>Other rules.</para>
+	  <itemizedlist>
+	    <listitem>
+	      <para>case clauses without a break always have a
+		"fall through" comment where the break would occur:</para>
+	      <programlisting format="linespecific">
+switch (foo)
+case x:
+/* do something here */
+// fall through
+case y:
+}
+	      </programlisting>
+	    </listitem> 
+	    <listitem>
+	      <para>A statement governed by if or else that is longer than a
+		single line always is surrounded by {}. The following is
+		unacceptable:</para>
+	      <programlisting> 
+else
+if (foo)
+    ;
+else
+    ;
+	      </programlisting>
+	    </listitem>
+	    <listitem>
+	      <para>On the other hand, never use braces around single
+		statements:</para>
+	      <programlisting>
+if (foo)   /* good */
+  bar();  
+if (foo) { /* bad */
+  bar();
+}
+	      </programlisting>
+	    </listitem> 
+	    <listitem>
+	      <para>Avoid global functions.  All functions should be members
+		of some class.</para>
+	    </listitem>
+	    <listitem>
+	      <para>Try to avoid calling delete except in low-level library
+		classes. For example, don't do:
+		<programlisting>
+void foo() {
+  Obj *p = new Obj;
+
+  ...
+  delete p;
+}
+		</programlisting>
+		Instead do:
+		<programlisting>
+void foo() {
+  Owner&lt;Obj> p(new Obj);
+  ...
+}
+		</programlisting>
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>If a the default copy constructor and assignment operator
+		will not work for a class, you must do one of two things:
+		Either provide a copy constructor and assigment operator that
+		will work or declare but do not implement aprivate copy
+		constructor and assignment operator.</para>
+	    </listitem>
+	    <listitem>
+	      <para>Avoid C++ exceptions.</para>
+	    </listitem>
+	    <listitem>
+	      <para>You can assume new will never return NULL (either it will
+		throw an exception on systems where that works or it will
+		print a fatal error and exit).</para>
+	    </listitem>
+	  </itemizedlist>
+	</listitem>
+      </itemizedlist>
+    </sect2>
+    <sect2>
+      <title>Headers</title>
+      <para>Every header file should be surrounded by an ifndef. Here
+	is a skeleton for a header file named 
+	<filename>filename.h</filename>:</para>
+      <programlisting format="linespecific">
+/* copyright notice goes here */
+
+#ifndef filename_INCLUDED
+#define filename_INCLUDED 1
+
+/* contents go here */
+
+#endif /* not filename_INCLUDED */
+      </programlisting>
+    </sect2>
+    <sect2>
+      <title>Namespaces</title>
+      <para>Every file should be surrounded by a namespace. Namespaces are
+	never used directly in order to support compilers which don't
+	understand namespaces. The general skeleton for a
+      <filename>.cxx</filename> file in the namespace NAMESPACE is:</para>
+	<programlisting format="linespecific">
+/* includes go here */
+
+#ifdef NAMESPACE
+namespace NAMESPACE {
+#endif
+
+/* content goes here */
+
+#ifdef NAMESPACE
+}
+#endif
+</programlisting>
+      <para>Files in the <filename>lib/</filename>,
+	<filename>nsgmls/</filename>, <filename>sgmlnorm/</filename>,
+	<filename>spam/</filename>, <filename>spent/</filename>,  
+	<filename>spgrove/</filename> and <filename>sx/</filename>
+	directories use the namespace SP_NAMESPACE. Files in
+	<filename>grove/</filename> use the namespace GROVE_NAMESPACE.
+	Files in <filename>style/</filename> and
+	<filename>jade/</filename> use DSSSL_NAMESPACE.</para>
+      
+      <para>DSSSL_NAMESPACE imports everything from SP_NAMESPACE and
+	GROVE_NAMESPACE (see <filename>style/dsssl_ns.h</filename>).</para>
+
+      <para>VC 5 and 6 have bugs in the namespace management, which mean that
+	all these 3 need to be defined to be the same.</para>
+
+      <para>The conditional stuff is to deal with compilers that don't support
+	namespaces.</para>
+    </sect2>
+    <sect2>
+      <title>Templates</title>
+      <para>To cope with different compilers capabilities with respect to
+      templates, all template instantiations are collected in files with names
+	ending in <filename>_inst.cxx</filename>. These are generated from
+	<filename>_inst.m4</filename> files.</para> 
+      
+      <para>To add a new template instantiation, add a macro call of the
+	form
+<programlisting>
+__instantiate(/* your template instatiation */)
+</programlisting>
+	to the appropriate <filename>.m4</filename> file.</para>
+    </sect2>
+    <sect2>
+      <title>API definitions</title>
+      <para>
+	When building <acronym>DLL</acronym>s on Windows, every class or
+	function which should be exported by the <acronym>DLL</acronym>
+	has to be prefixed with 
+<programlisting format="linespecific">
+__declspec(dllexport)
+</programlisting>
+	when building the <acronym>DLL</acronym> and with
+<programlisting format="linespecific">
+__declspec(dllimport)
+</programlisting>
+	when using it outside the <acronym>DLL</acronym>.</para>
+
+      <para>This is hidden behind the _API macros which get defined
+      appropriately. Every declaration of a class of function which is part of
+      the public interface of its library should be prefixed with the proper
+      _API macro. Files in <filename>include/</filename> use SP_API,  
+	files in <filename>grove/</filename> use GROVE_API,
+	files in <filename>spgrove/</filename> use SPGROVE_API,
+	files in <filename>style/</filename> use STYLE_API.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Messages</title>
+      <para>Messages for the main classes are collected in separate classes.
+	Eg there is a class <classname>InterpreterMessages</classname> for all
+	messages of the class <classname>Interpreter</classname>.</para>
+      
+      <para>The sources (<filename>.h</filename> and <filename>.cxx</filename>
+	files and, on Windows, <filename>.rc</filename> files) for the
+	<classname><replaceable>&lt;class></replaceable>Messages</classname>
+	classes are generated from <filename>.msg</filename> files by
+	the <filename>msggen.pl</filename> Perl script.
+      </para>
+
+	<para>Adding a new message amounts to adding one line to the correct
+	<filename>.msg</filename> file. The lines in these files have the
+	following format:</para> 
+
+      <para><replaceable>&lt;message type></replaceable><replaceable>&lt;args></replaceable>+<replaceable>&lt;identifier></replaceable>+<replaceable>&lt;relevant clause></replaceable>+<replaceable>&lt;message text></replaceable></para>
+	 
+      <para><replaceable>&lt;message type></replaceable> must be one of the
+	I, W, Q, X or E. These stand for info, warning, quantity error, idref
+	error and error, respectively.</para>
+
+      <para><replaceable>&lt;args></replaceable> is the number of placeholders
+	of the form %n in the <replaceable>&lt;message
+	text></replaceable>.</para>  
+
+      <para><replaceable>&lt;identifier></replaceable> is the C++-identifier
+	used to refer to the message.</para> 
+
+      <para><replaceable>&lt;relevant clause></replaceable> is used in SP to
+	give an exact reference to the <acronym>SGML</acronym> standard for
+	each error message. Outside of SP, this field is usually left
+	empty.</para> 
+
+      <para><replaceable>&lt;message text></replaceable> is the text of the
+   message. It can contain placeholders of the form %n where n is a number
+   between 0 and <replaceable>&lt;args></replaceable> - 1. These placeholders
+   will be replaced by suitable arguments if the message is issued.</para>
+
+      <para>Message arguments come from classes derived from
+	<classname>MessageArg</classname>.
+	<classname>StringMessageArg</classname> is a string, 
+	<classname>NumberMessageArg</classname> is an unsigned long.</para> 
+
+      <para>There is a special form of message which also gives a location for
+	the error which can be defined by adding one more field of the form
+	+<replaceable>&lt;aux text></replaceable> at the end of message
+	definition. <replaceable>&lt;aux text></replaceable> will usually be
+	an explanation of the location like "first definition was here" (for a
+	duplicate definition error). This form of message is only implemented
+	for <replaceable>&lt;args></replaceable>&le;1.</para> 
+
+      <para>Issuing a message is done by a call of the form
+	<function>message(<replaceable>&lt;class></replaceable>Messages::<replaceable>&lt;identifier></replaceable>, ...)</function>
+	
+	where <replaceable>&lt;class></replaceable> is the class to which the
+	message belongs and <replaceable>&lt;identifier></replaceable> is the
+	identifier used in the message definition. The remaining arguments to
+	the <function>message()</function> call must match the %n placeholders
+	in the message. For messages which give location information, the last
+	argument must be an object of type
+	<classname>Location</classname>.</para>  
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>General overview</title>
+    <sect2>
+      <title>Program structure</title>
+
+      <para>Most of SP and Jade is user-interface independent: it doesn't know
+	whether it's being run from the command line or from a GUI. The 
+	code is organized in several layers.</para>
+      <orderedlist>
+	<listitem><para>The lowest layer is a general purpose class library (mostly
+	  template based), which is independent of
+	  <acronym>SGML</acronym>/<acronym>XML</acronym>.
+	</para></listitem>
+	<listitem><para>The next layer is a general concept of an entity
+	  manager, which is basically an interface to set of services to an
+	  <acronym>SGML</acronym> parser; basically it's everything that the
+	  <acronym>SGML</acronym> standard leaves undefined or makes 
+	  system-dependent for an <acronym>SGML</acronym> parser.  This layer
+	  includes the message reporting API
+	  (<classname>MessageReporter</classname>,
+	  <classname>Message</classname>), catalog API 
+	  (<classname>EntityCatalog</classname>), 
+	  character set API (<classname>CharsetInfo</classname>), and the
+	  entity manager proper
+	  (<classname>EntityManager</classname>). Template instantations for
+	  this are in <filename>entmgr_inst.m4</filename>.
+	</para></listitem>
+	<listitem><para>Dependent on the first two layers is the core
+	  <acronym>SGML</acronym> parser.  This only implements the behaviour
+	  defined in the <acronym>SGML</acronym> standard.  Main public  
+	  classes are <classname>SgmlParser</classname> and
+	  <classname>Event</classname>. Template instantations for this are in 
+	  <filename>parser_inst.m4</filename>.
+	</para>
+	</listitem>
+	<listitem><para>The architectural forms engine. It depends on the
+	  <acronym>SGML</acronym> parser. Main class is
+	  <classname>ArcEngine</classname>. 
+	  Template instantiations are in
+	  <filename>arc_inst.m4</filename>.</para>
+	</listitem>
+	<listitem><para>An implementation of the entity manager interface. This
+	  doesn't depend on the <acronym>SGML</acronym> parser or achitectural
+	  forms engine. Main class is
+	  <classname>ExtendEntityManager</classname>. This for example 
+	  determines what the syntax of a system identifier is. Template
+	  instantiations for this are in
+	  <filename>xentmgr_inst.m4</filename>.</para>
+	</listitem>
+	<listitem><para>A generic interface to groves; in
+	  <filename>grove/Node.h</filename>.  This doesn't depend 
+	  on any of the previous layers.</para>
+	</listitem>
+	<listitem><para>An implementation of the grove interface using SP;
+	  this is in the <filename>spgrove/</filename> directory. Main class
+	  is <classname>GroveBuilder</classname>. This doesn't depend on the
+	  implementation of the entity manager interface.</para>
+	</listitem>
+	<listitem><para>An implementation of the <acronym>DSSSL</acronym> style
+	  language (the tree construction part, not the formatting part). 
+	  This is in the <filename>style/</filename> directory.  There
+	  are really two sub parts:</para>
+	  <orderedlist>
+	    <listitem><para>Packaging of the <acronym>DSSSL</acronym>
+		stylesheet as an <acronym>SGML</acronym> document using
+		architectural forms. Main classes are
+		<classname>DssslSpecEventHandler</classname> and  
+		<classname>StyleEngine</classname>. This doesn't depend on
+		the implemenation of the entity manager and grove
+		interfaces.</para>
+	    </listitem>
+	    <listitem><para>Processing of the contents of the elements in
+		the <acronym>DSSSL</acronym> stylesheet; this depends only
+		on the entity manager and grove interfaces.
+		The main interface here is <classname>FOTBuilder</classname>
+		which is the interface between the tree construction process
+		and the formatter.</para>
+	    </listitem>
+	  </orderedlist>
+	</listitem>
+	<listitem><para>Multiple implementations of the
+	    <classname>FOTBuilder</classname> interface (the backends).</para> 
+	</listitem>
+      </orderedlist>
+      <para>Parallel to the hierarchy of layers is a hierarchy of convenience
+	classes that collect together various pieces in a convenient way for
+	command line apps.</para>
+      <orderedlist>
+	<listitem><para><classname>CmdLineApp</classname> is the lowest level
+	  and depends only on the general purpose class library.</para></listitem>
+	<listitem><para><classname>EntityApp</classname> additionally depends on 
+	  the entity manager interface and implementation; it's a convenience
+	  class for accessing the functionality of the entity manager with a
+	  command line program.</para></listitem> 
+	<listitem><para><classname>ParserApp</classname> additionally depends on the
+	  <acronym>SGML</acronym> parser; it packages the parser together with
+	  the entity manager for use in a command line program.</para></listitem>
+	<listitem><para><classname>GroveApp</classname> additionally depends on the
+	  grove interface and implementation; this packages the functionality
+	  of the grove builder in a convenient way for command line
+	  apps.</para></listitem>  
+	<listitem><para><classname>DssslApp</classname> additionally depends on 
+	  <acronym>DSSSL</acronym> style language implementation, tieing it to
+	  the grove implementation; it is packaging up the functionality of
+	  the <acronym>DSSSL</acronym> tree construction in a way suitable for
+	  command line apps.</para></listitem> 
+	<listitem><para><classname>JadeApp</classname> additionally depends on the
+	  backends.</para></listitem>
+      </orderedlist>
+    </sect2>
+    <sect2>
+      <title>Other important classes</title>
+      <para>Short descriptions of several central classes in the
+      <acronym>DSSSL</acronym> style language implementation, some of which
+	have not yet been mentioned.</para>
+      <variablelist>
+	<varlistentry>
+	  <term><classname>StyleEngine</classname></term>
+	  <listitem>
+	    <para>main class of the style
+	      library. <classname>DssslApp</classname> 
+	      uses an instance of this class to process the grove.</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><classname>Interpreter</classname></term>
+	  <listitem>
+	    <para>contains all the stylesheet-related state:
+	      there are no global
+	      variables. <classname>StyleEngine</classname> owns an instance
+	      of this class.</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><classname>SchemeParser</classname></term>
+	  <listitem>
+	    <para>parses a part of a <acronym>DSSSL</acronym> spec, creating
+	      expression language objects and binding variables using a given
+	      <classname>Interpreter</classname>.
+	      <classname>StyleEngine</classname> uses instances of this class 
+	      to parse the parts of its spec.</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><classname>ProcessContext</classname></term>
+	  <listitem>
+	    <para>holds the current state of the processing of a grove.</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><classname>VM</classname></term>
+	  <listitem>
+	    <para>represents the state of the virtual machine that
+	      implements the expression language.</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><classname>Expression</classname></term>
+	  <listitem>
+	    <para><classname>Expression</classname>s are the result of parsing
+	      expression language constructs. They are compiled to
+	      <classname>Insn</classname>s.</para> 
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><classname>Insn</classname></term>
+	  <listitem>
+	    <para>an instruction for the virtual machine.</para>
+	    <para>When an instruction is executed it modifies the state of the
+	      virtual machine (usually) and then returns the next instruction
+	      to be executed. Returning a null <classname>Insn</classname>
+	    terminates execution.  Thus the inner loop of the expression
+	      evaluator is in a member function of <classname>VM</classname>
+	    and looks like:  
+	    </para>
+	    <programlisting>  
+while (insn)
+    insn = insn->execute(*this);
+</programlisting>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><classname>ELObj</classname></term>
+	  <listitem>
+	    <para>the abstract base class for all expression language
+	    types.</para> 
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </sect2>
+    <sect2>
+      <title>Garbage collection</title>
+
+      <para>
+	For further information on the garbage collection technique used in
+	Jade, look at <ulink url="ftp://ftp.cs.utexas.edu/pub/garbage/bigsurv.ps">ftp://ftp.cs.utexas.edu/pub/garbage/bigsurv.ps</ulink> and
+	<ulink
+	       url="ftp://ftp.netcom.com/pub/hb/hbaker/NoMotionGC.html">ftp://ftp.netcom.com/pub/hb/hbaker/NoMotionGC.html</ulink>.</para>
+
+      <para>Basically it works like a copying collector, but the copying is
+	logical rather than physical.  There are two doubly-linked lists one
+	for each of the two spaces of a copying collector.  Every object is
+	one of these two lists.  There's also a bit (the "color") which says
+	which space it is in. To "copy" an object from one space to another,
+	it is unlinked from one list, linked into the other, and its color is
+	flipped.  A key point is that unlike normal copying collectors, this
+	collector never changes the address of a GC object.
+      </para>
+      <para>This is a simplification. It is optimized so that there is one big 
+	circular list of all objects. A pointer into the list separates the 
+	allocated from the free list.  Allocating just moves the pointer along 
+	the list.
+      </para>
+      <para>Garbage collection starts with a set of root objects (more on this 
+	later). It finds all objects reachable from this set of root objects. 
+	All objects not reachable are considered garbage and are put on the
+	free list where they can be reused.  If garbage collection doesn't
+	free up enough objects, then more memory is allocated from the system.
+      </para>
+      <para>There are a couple of twists beyond what's described in the Wilson
+	paper:
+      </para>
+      <orderedlist>
+	<listitem><para>It supports finalization (the ability to call an GC object's
+	  destructor when the object is GCed).  All finalizable objects occur
+	  before non-finalizable objects in the allocated list.  The garbage
+	  collection arranges so that immediately after completing the copy
+	  part of a garbage collection, the objects needing finalization are
+	  at the head of the free list, thus allowing the collector to
+	  efficiently perform finalization.
+	</para></listitem>
+	<listitem><para>Objects which are created during the parsing of the
+	  stylesheet, which can never become garbage during the processing of
+	  the source document, are separated off into a separate area (these
+	  are called "permanent").  All objects reachable from a permanent
+	  object must themselves be permanent.
+	</para></listitem>
+	<listitem><para>It has the concept of an object being read-only: it can mark
+	  an object and all objects reachable from that object as being
+	  read-only (needed for Jade extensions which allow limited mutation
+	  of objects). 
+	</para></listitem>
+	<listitem><para>It always allocates a fixed amount of space for a GC object;
+	  so the <function>sizeof()</function> any object derived from
+	  <classname>ELObj</classname> must be &le; this space. How big 
+	  is it? On a 32-bit machine there is space for 16 bytes (eg 4
+	  pointers, or a double+int+pointer) beyond what is used by the
+	  <classname>ELObj</classname> itself.  On a 64-bit machine it will be
+	  about twice that; <function>maxObjSize()</function> in
+	  <filename>style/Interpreter.cxx</filename> figures it out at
+	  runtime, so to be safe add any new  types of
+	  <classname>ELObj</classname> to the table in
+	  <function>maxObjSize()</function>.  But make 
+	  sure you don't use more than 16 bytes on a 32-bit machine, otherwise
+	  you will significantly increase Jade's memory consumption.  If you
+	  need more space than this, then the <classname>ELObj</classname>
+	  should have a pointer to dynamically allocated memory; in this case
+	  you must deallocate the memory in the destructor.  In this case and
+	  any other case where an <classname>ELObj</classname> has a  
+	  destructor that must be called, you must declare an operator
+	  <function>new()</function>:
+<programlisting>	  
+void *operator new(size_t, Collector &lt;c) 
+{
+  return c.allocateObject(1);
+}
+</programlisting>
+This tells the garbage collector that the object has a destructor that
+must be called when the object becomes garbage.
+</para></listitem>
+</orderedlist>
+
+      <para>A key aspect of correct use of the garbage collector is to ensure
+	that the collector always has a sufficient set of roots.  Any time
+	that C++ code does anything that may allocate a GC object, any GC
+	object that is not reachable from a root object may get recycled by
+	the system.  The way to create a root is to use an auto variable of
+	type <classname>ELObjDynamicRoot</classname>.  An
+	<classname>ELObjDynamicRoot</classname> adds a single
+	<classname>ELObj</classname> as a root for the
+	<classname>Collector</classname> for as long as the
+	<classname>ELObjDynamicRoot</classname> is in scope.  The first
+	argument of the <classname>ELObjDynamicRoot</classname> constructor
+	specifies the collector. The second argument specifies the
+	<classname>ELObj</classname> that is to be made a root. The
+	<classname>ELObj</classname> that the
+	<classname>ELObjDynamicRoot</classname> causes to be a 
+	root can be changed by assiging an <classname>ELObj</classname> to the
+	<classname>ELObjDynamicRoot</classname>.  There's also a  
+	conversion from <classname>ELObjDynamicRoot</classname> to
+	<classname>ELObj</classname> *.</para>
+      <example>
+	<title>The <function>reverse()</function> function</title>
+      <programlisting>
+DEFPRIMITIVE(Reverse, argc, argv, context, interp, loc)
+{
+  ELObjDynamicRoot protect(interp, interp.makeNil());
+  ELObj *p = argv[0];
+  while (!p->isNil()) {
+    PairObj *tem = p->asPair();
+    if (!tem)
+      return argError(interp, loc,
+		      InterpreterMessages::notAList, 0, argv[0]);
+    protect = new (interp) PairObj(tem->car(), protect);
+    p = tem->cdr();
+  }
+  return protect;
+}
+</programlisting>
+	<para>protect is a dynamic root that contains the currently created
+	  part of the reversed node list.  Making this a root ensures that all
+	  the newly created <classname>PairObj</classname>s are reachable from
+	  a root.</para>
+      </example>
+      <example>
+	<title>The <function>NodeListRef()</function> function</title>
+      <para>The <function>NodeListRef()</function> function gives an example of
+	the sort of bug that can creep in if you're not very careful. This
+	used to end like this:
+	<programlisting>
+return new (interp) 
+    NodePtrNodeListObj(nl->nodeListRef(k, context, interp));
+	</programlisting>
+	  The <function>nodeListRef()</function> function sometimes
+	allocatesthat it takes an <classname>Interpreter</classname> argument
+	is a good clue).  So what could happen is:</para>
+	<orderedlist>
+	  <listitem><para>operator <function>new()</function> gets called to
+	    allocate a new object</para></listitem> 
+	  <listitem><para><function>nodeListRef()</function> gets called in a
+	    way that causes an allocation</para></listitem> 
+	  <listitem><para>the free list happens to be empty, so the garbage
+	    collector gets run; the newly allocated object is not reachable
+	    from a root, so it gets GCed and recycled</para></listitem>
+	  <listitem><para>the constructor gets called with a GC object that
+	    the garbage collector thinks is free</para></listitem>
+	</orderedlist>
+      <para>
+	The fix was to rewrite it as:
+	<programlisting>  
+NodePtr nd(nl->nodeListRef(k, context, interp));
+return new (interp) NodePtrNodeListObj(nd);
+	</programlisting>	
+      </para>
+      </example>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>How to add a new application</title>
+    <para>Create a subclass of one of the <classname>App</classname> classes;
+      use the macro SP_DEFINE_APP.</para>
+    <para>TODO: This needs more detail. Perhaps 
+      use <command>spcat</command> as example.</para>
+  </sect1>
+  <sect1>
+    <title>Extending Jade</title>
+    <sect2>
+      <title>Utility classes</title>
+      <para>TODO: Explain Char, String, Vector, StringC, Ptr, Owner</para>
+      <para>TODO: Maybe move this to the "General overview".</para>
+    </sect2>
+    <sect2>
+      <title>Primitives</title>
+      <para>Primitives of the expression language, the SDQL and the style
+	language are implemented as subclasses of
+      <classname>PrimitiveObj</classname> 
+	(<filename>style/Insn.h</filename>,
+      <filename>style/Insn.cxx</filename>). All primitives are defined in the
+	files <filename>style/primitive.h</filename> and
+      <filename>style/primitive.cxx</filename>. Adding a new primitive is done
+      by adding a macro call of the form
+	<programlisting format="linespecific">
+PRIMITIVE(<replaceable>&lt;class name prefix></replaceable>,
+	  "<replaceable>&lt;primitive name></replaceable>", 
+          <replaceable>&lt;req. args></replaceable>, <replaceable>&lt;opt. args></replaceable>, <replaceable>&lt;rest arg></replaceable>)
+	</programlisting>
+	to <filename>style/primitive.h</filename> and a macro call of the form
+	<programlisting format="linespecific">
+DEFPRIMITIVE(<replaceable>&lt;class name prefix></replaceable>, argc, argv,
+	     context, interp, loc)
+	</programlisting>
+	to <filename>style/primitive.cxx</filename>, followed by the body of
+	the function 
+	<function>PrimitiveObj::primitiveCall()</function> as needed for the
+	function you want to add.</para>
+
+      <para>For a new external procedure, use XPRIMITIVE instead of PRIMITIVE.
+	The new procedure can be accessed using the public identifier</para>
+      <para>"UNREGISTERED::James Clark//Procedure::<replaceable>&lt;primitive name></replaceable>".</para>    
+      <example>
+	<title>The <function>sin</function> function</title>
+	<para>We can add the <function>sin</function> defined in clause
+	  8.5.7.18 of the <acronym>DSSSL</acronym> standard by appending
+	  <programlisting>
+PRIMITIVE(Sin, "sin", 1, 0, 0)
+	  </programlisting>      
+	  to <filename>style/primitive.h</filename> and 
+	  <programlisting>
+DEFPRIMITIVE(Sin, argc, argv, context, interp, loc)
+{
+  double d;
+  if (!argv[0]->realValue(d)) 
+  return argError(interp, loc,
+		    InterpreterMessages::notANumber, 0, argv[0]);
+  return new (interp) RealObj(sin(d));
+}
+	  </programlisting>      
+	  to <filename>style/primitive.cxx</filename>.</para>
+      </example>
+    </sect2>
+    <sect2>
+      <title>Expression language types</title>
+      <para>Relevant classes:</para>
+      <variablelist>
+	<varlistentry>
+	  <term><classname>ELObj</classname></term> 
+	  <listitem>
+	    <para>Adding a new expression language type
+	      is done by adding a new subclass of
+	      <classname>ELObj</classname>. Make sure to follow the advise
+	      in the section on garbage collection with respect to the size of
+	      the subclass.</para>
+	  </listitem> 
+	</varlistentry>
+	<varlistentry>
+	  <term>SchemeParser</term>
+	  <listitem>
+	    <para>You will have to add a method for generating
+	      objects of the new type. This will generally involve a line like 
+	      <programlisting>
+result = new (*interp_) <replaceable>&lt;your class></replaceable>(...)
+	      </programlisting>    
+       The *interp_ argument to new is important to make
+       the newly generated object properly garbage collected.</para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+      <para>TODO: is this all ? add an example!</para>
+    </sect2>
+    <sect2>
+      <title>Backends</title>
+      <para>In order to create a completely new backend, you first
+	need to create a new subclass of
+      <classname>SerialFOTBuilder</classname> implementing the output 
+	format you are interested in. It is probably a good idea to
+	take an existing backend as a skeleton.</para>
+      <para>TODO: More detail needed.</para>
+
+      <para>To make the new backend available to Jade, you have to
+	add new values for your backend to 
+	<type>JadeApp::OutputType</type> and
+	<type>JadeApp::outputTypeNames</type> and add a new 
+	case to the switch statement in 
+	<function>JadeApp::makeFOTBuilder()</function> 
+	returning an instance of your <classname>FOTBuilder</classname>
+	subclass.</para>  
+    </sect2>
+    <sect2>
+      <title>Flow objects</title>
+      <para>For a standard flow object, you must create
+	a new subclass of <classname>FlowObj</classname> (atomic)
+	or <classname>CompoundFlowObj</classname> (nonatomic).
+	Do not forget to add a FLOW_OBJ macro call for the new class
+	in the <function>Interpreter::installFlowObjs()</function> function
+	in <filename>style/FlowObj.cxx</filename>.</para>
+      
+      <para>The <function>processInner()</function> of the new class
+	is responsible for calling the <classname>FOTBuilder</classname>
+	function (or pair of functions for nonatomic flow objects) associated
+	with the flow object in question. You may have to add these
+	functions to the interface of the <classname>FOTBuilder</classname>
+	class and provide default definitions there. These have to
+	be overridden by the backends (<classname>FOTBuilder</classname>
+	subclass) in order to implement the flow object in question.</para>
+
+      <para>TODO: explain extension flow objects</para>
+    </sect2>
+    <sect2>
+      <title>Command line switches</title>
+      <para>If you are adding a new Jade-specific option, add it to 
+	<classname>JadeApp</classname>. If the option you are adding
+	influences the behaviour of the style engine, add it to
+      <classname>DssslApp</classname>.</para> 
+
+      <para>Adding an option amount to registering it in the constructor 
+	with <function>registerOption()</function> and handling it in
+	<function>processOption()</function>. 
+      </para>
+      
+      <para>The <classname>CmdLineApp</classname> supports only single-letter options. You should
+	make sure that you don't choose a letter that is already taken:
+      </para>
+      <variablelist>
+	<varlistentry>
+	  <term>b, f, v</term>
+	    <listitem><para>registered by
+		<classname>CmdLineApp</classname></para></listitem> 
+	</varlistentry>
+	<varlistentry>
+	  <term>c, C, D</term>
+	    <listitem><para>registered by
+		<classname>EntityApp</classname></para></listitem> 
+	</varlistentry>
+	<varlistentry>
+	  <term>a, A, e, E, g, i, w</term>
+	    <listitem><para>registered by
+		<classname>ParserApp</classname></para></listitem> 
+	</varlistentry>
+	<varlistentry>
+	  <term>G, 2, d, V</term>
+	    <listitem><para>registered by
+		<classname>DssslApp</classname></para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>t, o</term>
+	    <listitem><para>registered by
+		<classname>JadeApp</classname></para></listitem>
+	</varlistentry>
+      </variablelist>    
+      <example>
+	<title>A -s flag for <classname>DssslApp</classname></title>
+	<para>Lets assume you have changed the
+	  <classname>StyleEngine</classname> constructor to accept one
+	  more bool parameter strict_, which you want to be set depending
+	  on the -s command line flag.</para>
+
+	<para>We add a new private member strict_ to
+	  <classname>DssslApp</classname> to hold the value until we pass
+	  it to the <classname>StyleEngine</classname> constructor. Thus we
+	  insert
+	<programlisting format="linespecific">
+bool strict_;	  
+	</programlisting>
+	  at the very end of the <classname>DssslApp</classname> class
+	  declaration in <filename>style/DssslApp.h</filename>.</para>
+	<para>Now we change the constructor to
+	  <programlisting>
+DssslApp::DssslApp(int unitsPerInch)
+: GroveApp("unicode"), unitsPerInch_(unitsPerInch),
+  dssslSpecOption_(0), debugMode_(0), dsssl2_(0),
+  strict_(0)  // this line is new
+{
+  registerOption('G');
+  registerOption('2');
+  registerOption('d', SP_T("dsssl_spec"));
+  registerOption('V', SP_T("variable"));
+  registerOption('s'); // this line is new
+}
+	  </programlisting> 
+	  and the function <function>processOption()</function> to
+	  <programlisting format="linespecific">
+void DssslApp::processOption(AppChar opt, const AppChar *arg)
+{
+  switch (opt) {
+  case 's':  // new case        
+    strict_ = 1;
+    break;
+  /* other cases stay the same */
+    }
+}
+	  </programlisting>
+	  Finally, we change the call of the
+	  <classname>StyleEngine</classname> constructor in
+	  <function>processGrove()</function> to
+	  <programlisting format="linespecific">
+StyleEngine se(*this, *this, unitsPerInch_, debugMode_, 
+               dsssl2_, strict_, extensions);
+	  </programlisting>
+	  </para>
+      </example>
+    </sect2>
+    <sect2>
+      <title>Supporting a larger grove plan</title>
+      <para>???</para>
+    </sect2>
+    <sect2>
+      <title>Translating messages</title>
+      <para>I can explain this only for the <function>gettext()</function>
+      support. Here are the necessary steps:</para>
+      <procedure>
+	<step performance="required">
+	  <para>Make sure to define SP_HAVE_GETTEXT and undefine
+	    SP_NO_MESSAGE_TEXT. I had to change the test for
+	    <function>gettext()</function> in
+	    <filename>config/configure.in</filename> from
+	    <programlisting format="linespecific">
+AC_CHECK_LIB(intl,gettext,AC_DEFINE(SP_HAVE_GETTEXT) LIBS="$LIBS -lintl")
+	    </programlisting>
+	    to
+	    <programlisting format="linespecific">
+AC_CHECK_FUNC(gettext,AC_DEFINE(SP_HAVE_GETTEXT),
+  AC_CHECK_LIB(intl,gettext,AC_DEFINE(SP_HAVE_GETTEXT) LIBS="$LIBS -lintl"))
+	    </programlisting>
+	    and call <command>autoconf</command> to regenerate
+	    the <filename>configure</filename> script.</para>
+	</step>
+	<step performance="required">
+	  <para>Add the following to <filename>msggen.pl</filename>
+	    in order to generate <filename>.po</filename> files:</para>
+	  <programlisting format="linespecific">
+chmod 0666, "$file_base.po";
+unlink("$file_base.po");
+open(OUT, ">$file_base.po");
+chmod 0444, "$file_base.po";
+select(OUT);
+
+printf "# %s\n\n", $file_base;
+
+foreach $i (0 .. $#message) {
+    if (defined($message[$i])) {
+	$str = $message[$i];
+	$str =~ s/"/""/g;
+	printf "msgid \"%s\"\nmsgstr \"\"\n\n", $str;
+    }
+    elsif (defined($message2[$i])) {
+	$str = $message2[$i];
+	$str =~ s/"/""/g;
+	printf "msgid \"%s\"\nmsgstr \"\"\n\n", $str;
+    }
+}
+
+close(OUT);
+	  </programlisting>
+	</step>
+	<step performance="required">
+	  <para>Build everything.</para>
+	</step>
+	<step performance="required">
+	  <para>Collect the various .po files in one big one:</para>
+	  <programlisting format="linespecific">
+for i in */*.po; do cat $i >> messages.po; done
+	  </programlisting>
+	</step>
+	<step performance="required">
+	  <para>Make a copy of <filename>messages.po</filename> for
+	    the language you are interested in and add the translations.</para>
+	</step>
+	<step performance="required">
+	  <para>Compile the translated file and install the resulting
+	    <filename>.mo</filename> file under the name
+	    <filename>sp.mo</filename> in the appropriate directory:</para> 
+	  <programlisting format="linespecific">
+msgfmt -o de.mo de.po
+cp de.mo /usr/local/share/locale/de/LC_MESSAGES/sp.mo
+	  </programlisting>
+	</step>
+      </procedure>
+    </sect2>
+  </sect1>
+</article>
+
+

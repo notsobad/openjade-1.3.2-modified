@@ -1,0 +1,12 @@
+CLEANFILES=lib$(LIB).a $(OBJS) $(COBJS) core
+
+all: lib$(LIB).a
+
+lib$(LIB).a: $(OBJS) $(COBJS) $(DEPLIBS)
+	$(CXX) $(ALL_CXXFLAGS) -xar -o $@ $(OBJS) $(COBJS) $(DEPLIBS)
+
+install:
+install-man:
+depend: depend_src
+depend.temp: $(GENSRCS)
+gen: $(GENSRCS)
